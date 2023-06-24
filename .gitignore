@@ -1,0 +1,4 @@
+.DS_Store
+
+# ignore build dir from cv_Rastor_Graphics_Editor
+cv_Rastor_Graphics_Editor/build
