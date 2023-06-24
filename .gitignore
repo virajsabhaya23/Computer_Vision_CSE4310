@@ -1,4 +1,5 @@
 .DS_Store
+.vscode
 
 # ignore build dir from cv_Rastor_Graphics_Editor
 cv_Rastor_Graphics_Editor/build
