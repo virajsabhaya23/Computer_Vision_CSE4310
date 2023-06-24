@@ -43,7 +43,7 @@ Point mouse_X_Y_Coordinates;
 Point crop_start_point;
 Point crop_end_point;
 
-bool is_drawing_rect = false;
+// bool is_drawing_rect = false;
 bool is_drawing_line = false;
 bool is_filling_color = false;
 
@@ -55,7 +55,7 @@ bool is_filling_color = false;
 Vec3b eyeDropperValue(255, 255, 255); // initialized default value of WHITE
 
 // Input image and Reset image
-Mat imageInput;
+Mat imageIn;
 Mat imageReset;
 
 /*******************************************************************************************************************//**
@@ -153,8 +153,8 @@ static void clickCallback(int event, int x, int y, int flags, void *param)
     else if (event == EVENT_LBUTTONDBLCLK && selectedTools == RESET)
     {
         // Reset functionality: Restore original image
-        imageInput = imageReset.clone();
-        imshow(DISPLAY_WINDOW_NAME, imageInput);
+        imageIn = imageReset.clone();
+        imshow(DISPLAY_WINDOW_NAME, imageIn);
     }
 
     // RIGHT CLICK ***************************************************************************************************
@@ -205,11 +205,11 @@ int main(int argc, char *argv[])
     }
     else
     {
-        // Mat imageInput;                             // input image
-        imageInput = imread(argv[1], IMREAD_COLOR); // read the input image
+        // Mat imageIn;                             // input image
+        imageIn = imread(argv[1], IMREAD_COLOR); // read the input image
 
         // check for file error
-        if (!imageInput.data)
+        if (!imageIn.data)
         {
             cout << "Error while opening file " << argv[1] << endl;
             return 0;
@@ -217,17 +217,17 @@ int main(int argc, char *argv[])
         else
         {
             // Cloning the image to use later for reset functionality
-            imageReset = imageInput.clone();
+            imageReset = imageIn.clone();
 
-            imshow(DISPLAY_WINDOW_NAME, imageInput);
+            imshow(DISPLAY_WINDOW_NAME, imageIn);
 
             // display the Image size (Width, Height) and channels
-            cout << "Image size: " << imageInput.size().width << endl;
-            cout << "Image size: " << imageInput.size().height << endl;
-            cout << "Image channels: " << imageInput.channels() << endl;
+            cout << "Image size: " << imageIn.size().width << endl;
+            cout << "Image size: " << imageIn.size().height << endl;
+            cout << "Image channels: " << imageIn.channels() << endl;
 
             // set the mouse callback function
-            setMouseCallback(DISPLAY_WINDOW_NAME, clickCallback, &imageInput);
+            setMouseCallback(DISPLAY_WINDOW_NAME, clickCallback, &imageIn);
 
             waitKey();
         }
