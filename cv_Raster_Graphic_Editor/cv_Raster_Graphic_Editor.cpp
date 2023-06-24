@@ -16,9 +16,9 @@
 //
 
 /*******************************************************************************************************************/ /**
-* @file cv_Raster_Graphic_Editor.cpp
-* @brief C++ Raster Graphic Editor example for OpenCV
-* @author Viraj V. Sabhaya
+ * @file cv_Raster_Graphic_Editor.cpp
+ * @brief C++ Raster Graphic Editor example for OpenCV
+ * @author Viraj V. Sabhaya
 **********************************************************************************************************************/
 
 // include necessary dependencies
@@ -58,19 +58,19 @@ Vec3b eyeDropperValue(255, 255, 255); // initialized default value of WHITE
 Mat imageIn;
 Mat imageReset;
 
-/*******************************************************************************************************************//**
+/*******************************************************************************************************************/ /**
  * @brief handler for image click callbacks
  * @param[in] event mouse event type
  * @param[in] x x coordinate of event
  * @param[in] y y coordinate of event
  * @param[in] flags additional event flags
  * @param[in] param user data passed as void* (in this case, the input image)
- * @author Christoper D. McMurrough
- **********************************************************************************************************************/
+ * @author Viraj V. Sabhaya
+**********************************************************************************************************************/
 static void clickCallback(int event, int x, int y, int flags, void *param)
 {
     // cast userdata to a Mat
-    Mat& imageIn = *(Mat *)param;
+    Mat &imageIn = *(Mat *)param;
 
     // EYEDROPPER ****************************************************************************************************
     if (event == EVENT_LBUTTONDOWN && selectedTools == EYEDROPPER)
@@ -138,8 +138,8 @@ static void clickCallback(int event, int x, int y, int flags, void *param)
         // Get the current color value of the clicked pixel
         Vec3b targetColor = imageIn.at<Vec3b>(y, x);
 
-        // Fill color using the floodFill algorithm. SOURCE: https://docs.opencv.org/4.x/d1/d17/samples_2cpp_2ffilldemo_8cpp-example.html 
-        floodFill(imageIn, Point(x, y), eyeDropperValue, 0, Scalar(0,0,0), Scalar(0,0,0), 4);
+        // Fill color using the floodFill algorithm. SOURCE: https://docs.opencv.org/4.x/d1/d17/samples_2cpp_2ffilldemo_8cpp-example.html
+        floodFill(imageIn, Point(x, y), eyeDropperValue, 0, Scalar(0, 0, 0), Scalar(0, 0, 0), 4);
 
         imshow(DISPLAY_WINDOW_NAME, imageIn);
     }
@@ -189,13 +189,13 @@ static void clickCallback(int event, int x, int y, int flags, void *param)
     }
 }
 
-/*******************************************************************************************************************//**
+/*******************************************************************************************************************/ /**
  * @brief program entry point
  * @param[in] argc number of command line arguments
  * @param[in] argv string array of command line arguments
  * @return return code (0 for normal termination)
  * @author Viraj V. Sabhaya
- **********************************************************************************************************************/
+**********************************************************************************************************************/
 int main(int argc, char *argv[])
 {
     if (argc != NUM_COMMAND_LINE_ARGUMENTS + 1)
