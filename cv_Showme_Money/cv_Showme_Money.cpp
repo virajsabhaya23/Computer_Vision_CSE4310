@@ -23,8 +23,8 @@
 
 // include necessary dependencies
 #include <iostream>
+#include <string>
 #include <opencv2/opencv.hpp>
-#include <opencv2/imgproc.hpp>
 
 // Global variables
 using namespace std;
@@ -36,10 +36,16 @@ using namespace cv;
 #define DISPLAY_WINDOW_NAME_GRAY "Show me the Money! - GrayScale Window"
 #define DISPLAY_WINDOW_NAME_OUTPUT "Show me the Money! - OUTPUT Window"
 
+// Color Constants
+Scalar COLOR_RED = CV_RGB(255, 0, 0); // For pennies
+Scalar COLOR_GREEN = CV_RGB(0, 255, 0); // For quarters
+Scalar COLOR_BLUE = CV_RGB(0, 0, 255); // For dimes
+Scalar COLOR_YELLOW = CV_RGB(255, 255, 0); // For nickels
+
 // Input image, GrayScale image and Coins Image(Circles the coins)
 Mat imageInput;
 Mat imageGray;
-// Mat imageCoins;
+Mat imageResult;
 
 /*******************************************************************************************************************/ /**
  * @brief program entry point
@@ -68,18 +74,24 @@ int main(int argc, char *argv[])
     }
     
     // display the Input Image size (Width, Height) and channels
+    cout << "Input Image details ... " << endl;
     cout << "Image size: " << imageInput.size().width << endl;
     cout << "Image size: " << imageInput.size().height << endl;
     cout << "Image channels: " << imageInput.channels() << endl;
 
     // Converting the Color image to GrayScale image
     cvtColor(imageInput, imageGray, COLOR_BGR2GRAY);
-    
+    imshow("image GRAY", imageGray);
+
+    // Converting the GrayScale image to a blur version of image.
+    // WHY? -> To remove the noise from the image. W/o this, a lot
+    //         of small portion of the blob is being detected !
+    // GaussianBlur(imageGray, imageGray, imageGray.size(), 0, 0);
+
     // display the images
     imshow(DISPLAY_WINDOW_NAME_INPUT, imageInput);
-    imshow(DISPLAY_WINDOW_NAME_GRAY, imageGray);
-    // imshow(DISPLAY_WINDOW_NAME_OUTPUT, imageCoins);
-    
+    imshow("image GRAY w/ BLUR", imageGray);
+    // imshow(DISPLAY_WINDOW_NAME_GRAY, imageResult);
     waitKey();
 
     return 0;
