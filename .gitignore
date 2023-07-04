@@ -1,5 +1,8 @@
 .DS_Store
 .vscode
 
+# ignore vscode settings
+.vscode/settings.json
+
 # ignore build dir from cv_Rastor_Graphics_Editor
 build/
