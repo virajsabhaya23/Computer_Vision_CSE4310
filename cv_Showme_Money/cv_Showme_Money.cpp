@@ -32,20 +32,12 @@ using namespace cv;
 
 // configuration parameters
 #define NUM_COMMAND_LINE_ARGUMENTS 1
-#define DISPLAY_WINDOW_NAME_INPUT "Show me the Money! - Input Window"
-#define DISPLAY_WINDOW_NAME_GRAY "Show me the Money! - GrayScale Window"
-#define DISPLAY_WINDOW_NAME_OUTPUT "Show me the Money! - OUTPUT Window"
 
 // Color Constants
 Scalar COLOR_RED = CV_RGB(255, 0, 0); // For pennies
 Scalar COLOR_GREEN = CV_RGB(0, 255, 0); // For quarters
 Scalar COLOR_BLUE = CV_RGB(0, 0, 255); // For dimes
 Scalar COLOR_YELLOW = CV_RGB(255, 255, 0); // For nickels
-
-// Input image, GrayScale image and Coins Image(Circles the coins)
-Mat imageInput;
-Mat imageGray;
-Mat imageResult;
 
 /*******************************************************************************************************************/ /**
  * @brief program entry point
@@ -56,6 +48,12 @@ Mat imageResult;
 **********************************************************************************************************************/
 int main(int argc, char *argv[])
 {
+    // Input image, GrayScale image and Coins Image(Circles the coins)
+    Mat imageInput;
+    Mat imageGray;
+    Mat imageEdges;
+    Mat imageResult;
+
     if (argc != NUM_COMMAND_LINE_ARGUMENTS + 1)
     {
         printf("Usage: %s <image_file>\n", argv[0]);
@@ -72,27 +70,90 @@ int main(int argc, char *argv[])
             return 0;
         }
     }
+
+    // Copy the input image to the result image
+    imageResult = imageInput.clone();
+
+    Mat imageEllipse = imageInput.clone();
+    Mat imageRectangles = imageInput.clone();
     
     // display the Input Image size (Width, Height) and channels
     cout << "Input Image details ... " << endl;
-    cout << "Image size: " << imageInput.size().width << endl;
-    cout << "Image size: " << imageInput.size().height << endl;
+    cout << "Image width: " << imageInput.size().width << endl;
+    cout << "Image height: " << imageInput.size().height << endl;
     cout << "Image channels: " << imageInput.channels() << endl;
 
     // Converting the Color image to GrayScale image
     cvtColor(imageInput, imageGray, COLOR_BGR2GRAY);
-    imshow("image GRAY", imageGray);
 
-    // Converting the GrayScale image to a blur version of image.
-    // WHY? -> To remove the noise from the image. W/o this, a lot
-    //         of small portion of the blob is being detected !
-    // GaussianBlur(imageGray, imageGray, imageGray.size(), 0, 0);
+    // Finding edges in the image using canny edge detection
+    const double cannyThreshold1 = 100;
+    const double cannyThreshold2 = 200;
+    const int cannyAperture = 3;
+    Canny(imageGray, imageEdges, cannyThreshold1, cannyThreshold2, cannyAperture);
+
+    // Removing noise from the edges using ERODE and DILATE
+    Mat imageEnD;
+    int morphologySize = 1;
+    dilate(imageEdges, imageEnD, Mat(), Point(-1, -1), morphologySize);
+    erode(imageEnD, imageEnD, Mat(), Point(-1, -1), morphologySize);
+    
+    // Locating image contours by applying threshold or canny
+    vector<vector<Point> > contours;
+    findContours(imageEnD, contours, RETR_EXTERNAL, CHAIN_APPROX_SIMPLE, Point(0, 0));
+
+    // Drawing contours around the coins
+    for(int i = 0; i < contours.size(); i++)
+    {
+        drawContours(imageResult, contours, i, COLOR_RED, 2);
+    }
+
+    // rectangles
+    vector<RotatedRect> minAreaRectangles(contours.size());
+    for (int i = 0; i < contours.size(); i++)
+    {
+        minAreaRectangles[i] = minAreaRect(contours[i]);
+    }
+    
+    for(int i = 0; i < contours.size(); i++)
+    {
+        Point2f rectanglePoints[4];
+        minAreaRectangles[i].points(rectanglePoints);
+        for(int j = 0; j < 4; j++)
+        {
+            line(imageRectangles, rectanglePoints[j], rectanglePoints[(j+1)%4], COLOR_GREEN);
+        }
+    }
+    // fit ellipses to contours 
+    vector<RotatedRect> fittedEllipses(contours.size());
+    for (int i = 0; i < contours.size(); i++)
+    {
+        if(contours.at(i).size() > 5)
+        {
+            fittedEllipses[i] = fitEllipse(contours[i]);
+        }
+    }
+    
+    const int minEllipseInliers = 5;
+    for(int i = 0; i < contours.size(); i++)
+    {
+        if(contours.at(i).size() > minEllipseInliers)
+        {
+            ellipse(imageEllipse, fittedEllipses[i], COLOR_BLUE, 2);
+        }
+    }
+    
 
     // display the images
-    imshow(DISPLAY_WINDOW_NAME_INPUT, imageInput);
+    imshow("input image", imageInput);
     imshow("image GRAY w/ BLUR", imageGray);
+    imshow("image EDGES", imageEdges);
+    imshow("image EDGES w/ erode and dilate", imageEnD);
+    imshow("image contours", imageResult);
+    imshow("image rectangles", imageRectangles);
+    imshow("image ellipses", imageEllipse); 
     // imshow(DISPLAY_WINDOW_NAME_GRAY, imageResult);
+
     waitKey();
 
-    return 0;
 }
