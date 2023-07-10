@@ -16,8 +16,8 @@
 //
 
 /*******************************************************************************************************************/ /**
- * @file cv_Raster_Graphic_Editor.cpp
- * @brief C++ Raster Graphic Editor example for OpenCV
+ * @file cv_Showme_Money.cpp
+ * @brief C++ Show me Money example for OpenCV
  * @author Viraj V. Sabhaya
 **********************************************************************************************************************/
 
@@ -39,6 +39,9 @@ Scalar COLOR_GREEN = CV_RGB(0, 255, 0); // For quarters
 Scalar COLOR_BLUE = CV_RGB(0, 0, 255); // For dimes
 Scalar COLOR_YELLOW = CV_RGB(255, 255, 0); // For nickels
 
+// Outline color
+Scalar outlineColor;
+
 /*******************************************************************************************************************/ /**
  * @brief program entry point
  * @param[in] argc number of command line arguments
@@ -53,6 +56,17 @@ int main(int argc, char *argv[])
     Mat imageGray;
     Mat imageEdges;
     Mat imageResult;
+    Mat imageEllipse;
+    Mat imageRectangles;
+
+    // Total number of Pennies, Quarters, Dimes, Nickels
+    int totalPennies = 0;
+    int totalQuarters = 0;
+    int totalDimes = 0;
+    int totalNickels = 0;
+
+    // Total value of COINS
+    double totalValue = 0.0;
 
     if (argc != NUM_COMMAND_LINE_ARGUMENTS + 1)
     {
@@ -71,17 +85,16 @@ int main(int argc, char *argv[])
         }
     }
 
-    // Copy the input image to the result image
+    // Copy the input image to the result image, imageEllipse and imageRectangles
     imageResult = imageInput.clone();
-
-    Mat imageEllipse = imageInput.clone();
-    Mat imageRectangles = imageInput.clone();
+    imageEllipse = imageInput.clone();
+    imageRectangles = imageInput.clone();
     
     // display the Input Image size (Width, Height) and channels
     cout << "Input Image details ... " << endl;
     cout << "Image width: " << imageInput.size().width << endl;
     cout << "Image height: " << imageInput.size().height << endl;
-    cout << "Image channels: " << imageInput.channels() << endl;
+    cout << "Image channels: " << imageInput.channels() << endl << endl;
 
     // Converting the Color image to GrayScale image
     cvtColor(imageInput, imageGray, COLOR_BGR2GRAY);
@@ -133,26 +146,66 @@ int main(int argc, char *argv[])
             fittedEllipses[i] = fitEllipse(contours[i]);
         }
     }
-    
-    const int minEllipseInliers = 5;
-    for(int i = 0; i < contours.size(); i++)
+
+    const int minEllipseInliers = 20;
+
+    // Identify the coins in the image from the calculated areaa
+    for (int i = 0; i < contours.size(); i++)
     {
+        // cout << "Ellipse " << i << " ... " << endl;
+        double height = fittedEllipses[i].size.height;
+        // cout << "HEIGHT: " << height << endl;
+        double width = fittedEllipses[i].size.width;
+        // cout << "WIDTH: " << width << endl;
+        double area = (height) * (width) * 3.14159265;
+        // cout << "AREA: " << area << endl << endl;
+
+        if(height >= 102 && height < 110)
+        {   
+            totalPennies++;
+            totalValue += 0.01;
+            outlineColor = COLOR_RED;
+        }
+        else if(height >= 112 && height < 120)
+        {
+            totalNickels++;
+            totalValue += 0.05;
+            outlineColor = COLOR_YELLOW;
+        }
+        else if(height >= 92 && height < 102)
+        {
+            totalDimes++;
+            totalValue += 0.10;
+            outlineColor = COLOR_BLUE;
+        }
+        else if(height >= 125)
+        {
+            totalQuarters++;
+            totalValue += 0.25;
+            outlineColor = COLOR_GREEN;
+        }
+
         if(contours.at(i).size() > minEllipseInliers)
         {
-            ellipse(imageEllipse, fittedEllipses[i], COLOR_BLUE, 2);
+            ellipse(imageEllipse, fittedEllipses[i], outlineColor, 2);
         }
     }
     
+    // Displaying coin counts and total value of the coins
+    cout << "Penny - " << totalPennies << endl;
+    cout << "Nickel - " << totalNickels << endl;
+    cout << "Dime - " << totalDimes << endl;
+    cout << "Quarter - " << totalQuarters << endl;
+    cout << "Total Value - $" << totalValue << endl;
 
     // display the images
     imshow("input image", imageInput);
-    imshow("image GRAY w/ BLUR", imageGray);
-    imshow("image EDGES", imageEdges);
-    imshow("image EDGES w/ erode and dilate", imageEnD);
-    imshow("image contours", imageResult);
-    imshow("image rectangles", imageRectangles);
-    imshow("image ellipses", imageEllipse); 
-    // imshow(DISPLAY_WINDOW_NAME_GRAY, imageResult);
+    // imshow("image GRAY w/ BLUR", imageGray);
+    // imshow("image EDGES", imageEdges);
+    // imshow("image EDGES w/ erode and dilate", imageEnD);
+    // imshow("image contours", imageResult);
+    // imshow("image rectangles", imageRectangles);
+    imshow("image RESULT w/ ellipses", imageEllipse); 
 
     waitKey();
 
