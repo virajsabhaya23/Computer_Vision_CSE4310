@@ -23,7 +23,11 @@
 
 // include necessary dependencies
 #include <iostream>
-#include <opencv2/opencv.hpp>
+#include <cstdio>
+#include "opencv2/opencv.hpp"
+#include <opencv2/tracking.hpp>
+#include <opencv2/core/ocl.hpp>
+#include <opencv2/highgui.hpp>
 
 // Global variables
 using namespace std;
@@ -32,9 +36,6 @@ using namespace cv;
 // configuration parameters
 #define NUM_COMMAND_LINE_ARGUMENTS 1
 #define DISPLAY_WINDOW_NAME "Traffic Counter! @Viraj V. Sabhaya"
-
-// Input image
-Mat imageIn;
 
 /*******************************************************************************************************************/ /**
  * @brief program entry point
@@ -45,32 +46,57 @@ Mat imageIn;
 **********************************************************************************************************************/
 int main(int argc, char *argv[])
 {
+    string videoFileName;
+
     if (argc != NUM_COMMAND_LINE_ARGUMENTS + 1)
     {
-        printf("Usage: %s <image_file>\n", argv[0]);
+        printf("Usage: %s <video_file>\n", argv[0]);
         return 0;
     }
     else
     {
-        imageIn = imread(argv[1], IMREAD_COLOR); // read the input image
+        videoFileName = argv[1];
+    }
 
-        // check for file error
-        if (!imageIn.data)
+    // open video file
+    VideoCapture capture(videoFileName);
+    if (!capture.isOpened())
+    {
+        cout << "Unable to open video source, terminating program!" << endl;
+        return 0;
+    }
+    
+    int captureWidth = capture.get(CAP_PROP_FRAME_WIDTH);
+    int captureHeight = capture.get(CAP_PROP_FRAME_HEIGHT);
+    int captureFPS = capture.get(CAP_PROP_FPS);
+    cout << "Video source opened successfully!" << endl;
+    cout << "Width: " << captureWidth << endl;
+    cout << "Height: " << captureHeight << endl;
+    cout << "FPS: " << captureFPS << endl;
+
+    // created display window
+    namedWindow(DISPLAY_WINDOW_NAME, WINDOW_AUTOSIZE);
+
+    bool tracking = true;
+    while(tracking)
+    {
+        Mat Frame;
+
+        // read frame from video source
+        bool captureSuccess = capture.read(Frame);
+
+        if(captureSuccess)
         {
-            cout << "Error while opening file " << argv[1] << endl;
-            return 0;
+            imshow(DISPLAY_WINDOW_NAME, Frame);
         }
-        else
+
+        if(waitKey(1) == 27)
         {
-            imshow(DISPLAY_WINDOW_NAME, imageIn);
-
-            // display the Image size (Width, Height) and channels
-            cout << "Image size: " << imageIn.size().width << endl;
-            cout << "Image size: " << imageIn.size().height << endl;
-            cout << "Image channels: " << imageIn.channels() << endl;
-
-            waitKey();
+            tracking = false;
         }
     }
-    return 0;
+
+    // release captured video and destryoing all windows
+    capture.release();
+    destroyAllWindows();
 }
