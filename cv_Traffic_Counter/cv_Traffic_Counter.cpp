@@ -32,6 +32,9 @@
 using namespace std;
 using namespace cv;
 
+int EASTBOUND_COUNT = 0;
+int WESTBOUND_COUNT = 0;
+
 // configuration parameters
 #define NUM_COMMAND_LINE_ARGUMENTS 1
 #define DISPLAY_WINDOW_NAME "Traffic Counter! @Viraj V. Sabhaya"
