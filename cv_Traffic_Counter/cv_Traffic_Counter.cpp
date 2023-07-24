@@ -37,8 +37,6 @@ int WESTBOUND_COUNT = 0;
 
 // configuration parameters
 #define NUM_COMMAND_LINE_ARGUMENTS 1
-#define DISPLAY_WINDOW_NAME "Traffic Counter! @Viraj V. Sabhaya"
-#define DISPLAY_RESULT_WINDOW_NAME "Traffic Counter Result! @Viraj V. Sabhaya"
 
 /*******************************************************************************************************************/ /**
  * @brief program entry point
@@ -78,13 +76,15 @@ int main(int argc, char *argv[])
     cout << "FPS: " << captureFPS << endl;
 
     // created displaying windows
-    namedWindow(DISPLAY_WINDOW_NAME, WINDOW_AUTOSIZE);
-    namedWindow(DISPLAY_RESULT_WINDOW_NAME, WINDOW_AUTOSIZE);
+    namedWindow("capturedFrame", WINDOW_AUTOSIZE);
+    namedWindow("fgMask", WINDOW_AUTOSIZE);
+    namedWindow("contourImage", WINDOW_AUTOSIZE);
 
-    const int bgHistory = 200;
-    const float bgThreshold = 500;
+    const int bgHistory = 10000;
+    const float bgThreshold = 100;
     const bool bgShadowDetection = false;
     Mat fgMask; // used MOG2 method
+    Mat contourImage;
     Ptr<BackgroundSubtractor> pMOG2; // MOG2 Background subtractor
     pMOG2 = createBackgroundSubtractorMOG2(bgHistory, bgThreshold, bgShadowDetection);
 
@@ -106,23 +106,60 @@ int main(int argc, char *argv[])
             const int rangeMax = 255;
             cvtColor(capturedFrame, grayFrame, COLOR_BGR2GRAY);
             normalize(grayFrame, grayFrame, rangeMin, rangeMax, NORM_MINMAX, CV_8UC1);
+            // equalizeHist(grayFrame, grayFrame);
 
             // extract foreground mask
             pMOG2->apply(grayFrame, fgMask);
+
+            // applying dilation and erosion to fgMask
+            Mat element = getStructuringElement(MORPH_RECT, Size(15, 15));
+            dilate(fgMask, fgMask, element);
+            erode(fgMask, fgMask, element);
+
+            // Find contours in the foreground mask
+            vector<vector<Point> > contours;
+            findContours(fgMask, contours, RETR_EXTERNAL, CHAIN_APPROX_SIMPLE);
+
+            // filter contours by area
+            double minContourArea = 6000; // Set this to a value that suits your case
+            vector<vector<Point> > largeContours;
+            for (size_t i = 0; i < contours.size(); i++) 
+            {
+                double area = contourArea(contours[i]);
+                if (area >= minContourArea) {
+                    largeContours.push_back(contours[i]);
+                }
+            }
+
+            // draw contours on the original image
+            capturedFrame.copyTo(contourImage);
+
+            // Apply convex hull on each large contour and draw bounding rectangles
+            for (size_t i = 0; i < largeContours.size(); i++) 
+            {
+                vector<Point> hull;
+                convexHull(largeContours[i], hull);
+
+                // Draw bounding rectangle
+                Rect rect = boundingRect(hull);
+                rectangle(contourImage, rect.tl(), rect.br(), Scalar(0, 255, 0), 2);
+            }
 
             // incrementing frame count
             frameCount++; 
         }
         else
         {
-            cout << "Unable to read frame ..." << endl;
+            cout << "Video playback finished !" << endl;
+            break;
         }
 
         // updating GUI window
         if (captureSuccess)
         {
-            imshow(DISPLAY_WINDOW_NAME, capturedFrame);
-            imshow(DISPLAY_RESULT_WINDOW_NAME, fgMask);
+            imshow("capturedFrame", capturedFrame);
+            imshow("fgMask", fgMask);
+            imshow("contourImage", contourImage);
         }
         
 

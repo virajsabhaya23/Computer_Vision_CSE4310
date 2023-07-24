@@ -5,14 +5,14 @@
 ## Project 3: Playing in Traffic (Traffic Counter)
 
 # TODOs:
-- [ ] Refer to cv_background
-- [ ] use erode and dilate to remove noise
+- [x] Refer to cv_background
+- [x] use erode and dilate to remove noise
 - [ ] use a tracking algorithm to track the cars from cv_tracking, create a tracker object
 - [ ] find the moving blobs, track the blobs from moving left to right
 - [ ] count the blobs that move from left to right
-- [ ] first run the bg subtracter
+- [x] first run the bg subtracter
 - [ ] find everything thats moving
-- [ ] dilate by 10 to 20 pixels
+- [x] dilate by 10 to 20 pixels
 - [ ] run cv contours with ROI flag to find the contours
 - [ ] draw bounding box around each of those contours, using CSRT tracker
 - [ ] If collide to the extreme left or right, kill the contour
