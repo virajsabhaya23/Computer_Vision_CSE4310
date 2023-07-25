@@ -121,7 +121,7 @@ int main(int argc, char *argv[])
             findContours(fgMask, contours, RETR_EXTERNAL, CHAIN_APPROX_SIMPLE);
 
             // filter contours by area
-            double minContourArea = 6000; // Set this to a value that suits your case
+            double minContourArea = 8000; // Set this to a value that suits your case
             vector<vector<Point> > largeContours;
             for (size_t i = 0; i < contours.size(); i++) 
             {
