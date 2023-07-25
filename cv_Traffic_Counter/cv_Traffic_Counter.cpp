@@ -95,8 +95,8 @@ int main(int argc, char *argv[])
     int frameCount = 0;
 
     Point lineTop(captureWidth / 2, 0);
-    Point lineBottom(captureHeight / 2, captureWidth / 2);
     Point lineDivide(captureWidth / 2, captureHeight / 2.4);
+    Point lineBottom(captureWidth / 2, captureHeight);
 
     while(tracking)
     {
