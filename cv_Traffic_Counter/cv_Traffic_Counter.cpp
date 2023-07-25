@@ -27,6 +27,7 @@
 #include "opencv2/opencv.hpp"
 #include <opencv2/tracking.hpp>
 #include <opencv2/core/ocl.hpp>
+#include <map>
 
 // Global variables
 using namespace std;
@@ -97,6 +98,9 @@ int main(int argc, char *argv[])
     Point lineTop(captureWidth / 2, 0);
     Point lineDivide(captureWidth / 2, captureHeight / 2.4);
     Point lineBottom(captureWidth / 2, captureHeight);
+    Point lineActual(captureWidth / 2, captureHeight / 3);
+
+    map<int, Rect> previous_rectangles;
 
     while(tracking)
     {
@@ -152,7 +156,23 @@ int main(int argc, char *argv[])
 
                 // Draw bounding rectangle
                 Rect rect = boundingRect(hull);
-                rectangle(contourImage, rect.tl(), rect.br(), Scalar(0, 255, 0), 2);
+                // rectangle(contourImage, rect.tl(), rect.br(), Scalar(0, 255, 0), 2);
+
+                // printing lineDivide for debugging
+                // cout << "lineDivide: " << lineDivide << endl;
+                // cout << "rect.y: " << rect.y << endl;
+
+                // if the rectangle is above lineDivide then draw a GREEN rectangle on the detected blobs
+                if(rect.y < lineActual.y)
+                {
+                    rectangle(contourImage, rect.tl(), rect.br(), GREEN_COLOR, 2);
+                    WESTBOUND_COUNT++;
+                }
+                else
+                {
+                    rectangle(contourImage, rect.tl(), rect.br(), RED_COLOR, 2);
+                    EASTBOUND_COUNT++;
+                }
             }
 
             // incrementing frame count
@@ -177,6 +197,9 @@ int main(int argc, char *argv[])
         {
             tracking = false;
         }
+
+        // Displaying the number of counts on each direction
+        cout << "WESTBOUND COUNT: " << WESTBOUND_COUNT << ", EASTBOUND COUNT : " << EASTBOUND_COUNT << endl;
     }
 
     // release captured video and destryoing all windows
