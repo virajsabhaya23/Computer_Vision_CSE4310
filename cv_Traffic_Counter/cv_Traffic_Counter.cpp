@@ -32,6 +32,9 @@
 using namespace std;
 using namespace cv;
 
+Scalar GREEN_COLOR(0, 255, 0);
+Scalar RED_COLOR(0, 0, 255); 
+
 int EASTBOUND_COUNT = 0;
 int WESTBOUND_COUNT = 0;
 
@@ -91,6 +94,10 @@ int main(int argc, char *argv[])
     bool tracking = true;
     int frameCount = 0;
 
+    Point lineTop(captureWidth / 2, 0);
+    Point lineBottom(captureHeight / 2, captureWidth / 2);
+    Point lineDivide(captureWidth / 2, captureHeight / 2.4);
+
     while(tracking)
     {
         Mat capturedFrame;
@@ -133,6 +140,9 @@ int main(int argc, char *argv[])
 
             // draw contours on the original image
             capturedFrame.copyTo(contourImage);
+
+            line(contourImage, lineTop, lineDivide, GREEN_COLOR, 2);
+            line(contourImage, lineDivide, lineBottom, RED_COLOR, 2);
 
             // Apply convex hull on each large contour and draw bounding rectangles
             for (size_t i = 0; i < largeContours.size(); i++) 
