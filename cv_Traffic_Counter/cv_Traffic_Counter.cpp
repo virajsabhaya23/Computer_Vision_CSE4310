@@ -27,7 +27,6 @@
 #include "opencv2/opencv.hpp"
 #include <opencv2/tracking.hpp>
 #include <opencv2/core/ocl.hpp>
-#include <map>
 
 // Global variables
 using namespace std;
@@ -81,8 +80,8 @@ int main(int argc, char *argv[])
 
     // created displaying windows
     namedWindow("capturedFrame", WINDOW_AUTOSIZE);
-    namedWindow("fgMask", WINDOW_AUTOSIZE);
-    namedWindow("contourImage", WINDOW_AUTOSIZE);
+    // namedWindow("fgMask", WINDOW_AUTOSIZE);
+    namedWindow("Result Window", WINDOW_AUTOSIZE);
 
     const int bgHistory = 10000;
     const float bgThreshold = 100;
@@ -99,8 +98,6 @@ int main(int argc, char *argv[])
     Point lineDivide(captureWidth / 2, captureHeight / 2.4);
     Point lineBottom(captureWidth / 2, captureHeight);
     Point lineActual(captureWidth / 2, captureHeight / 3);
-
-    map<int, Rect> previous_rectangles;
 
     while(tracking)
     {
@@ -131,10 +128,10 @@ int main(int argc, char *argv[])
             vector<vector<Point> > contours;
             findContours(fgMask, contours, RETR_EXTERNAL, CHAIN_APPROX_SIMPLE);
 
-            // filter contours by area
-            double minContourArea = 8000; // Set this to a value that suits your case
+            // filtering contours by min area to remove hte smaller rectangles detected
+            double minContourArea = 8500;
             vector<vector<Point> > largeContours;
-            for (size_t i = 0; i < contours.size(); i++) 
+            for (int i = 0; i < contours.size(); i++) 
             {
                 double area = contourArea(contours[i]);
                 if (area >= minContourArea) {
@@ -142,39 +139,41 @@ int main(int argc, char *argv[])
                 }
             }
 
-            // draw contours on the original image
+            // drawing contours to the original image
             capturedFrame.copyTo(contourImage);
 
-            line(contourImage, lineTop, lineDivide, GREEN_COLOR, 2);
-            line(contourImage, lineDivide, lineBottom, RED_COLOR, 2);
+            // line(contourImage, lineTop, lineDivide, GREEN_COLOR, 2);
+            // line(contourImage, lineDivide, lineBottom, RED_COLOR, 2);
 
             // Apply convex hull on each large contour and draw bounding rectangles
-            for (size_t i = 0; i < largeContours.size(); i++) 
+            for (int i = 0; i < largeContours.size(); i++) 
             {
                 vector<Point> hull;
                 convexHull(largeContours[i], hull);
 
-                // Draw bounding rectangle
+                // Drawing bounding rectangle
                 Rect rect = boundingRect(hull);
-                // rectangle(contourImage, rect.tl(), rect.br(), Scalar(0, 255, 0), 2);
 
                 // printing lineDivide for debugging
                 // cout << "lineDivide: " << lineDivide << endl;
                 // cout << "rect.y: " << rect.y << endl;
 
+                double area = largeContours[i].size();
+                // cout << "area: " << area << endl;    // area = 148
+
                 // if the rectangle is above lineDivide then draw a GREEN rectangle on the detected blobs
-                if(rect.y < lineActual.y)
+                if(rect.y < lineActual.y && area >= 150)
                 {
                     rectangle(contourImage, rect.tl(), rect.br(), GREEN_COLOR, 2);
                     WESTBOUND_COUNT++;
                 }
-                else
+                else if(rect.y > lineActual.y && area >= 150)
                 {
                     rectangle(contourImage, rect.tl(), rect.br(), RED_COLOR, 2);
                     EASTBOUND_COUNT++;
                 }
             }
-
+            
             // incrementing frame count
             frameCount++; 
         }
@@ -188,21 +187,19 @@ int main(int argc, char *argv[])
         if (captureSuccess)
         {
             imshow("capturedFrame", capturedFrame);
-            imshow("fgMask", fgMask);
-            imshow("contourImage", contourImage);
+            // imshow("fgMask", fgMask);
+            imshow("Result Window", contourImage);
         }
-        
 
         if(((char)waitKey(1) == 'q'))
         {
             tracking = false;
         }
-
-        // Displaying the number of counts on each direction
-        cout << "WESTBOUND COUNT: " << WESTBOUND_COUNT << ", EASTBOUND COUNT : " << EASTBOUND_COUNT << endl;
     }
-
-    // release captured video and destryoing all windows
+    // Displaying the number of counts on each direction
+    cout << "WESTBOUND COUNT: " << WESTBOUND_COUNT/45 << endl;
+    cout << "EASTBOUND COUNT : " << EASTBOUND_COUNT/61 << endl;
+    // releasing the captured video and destryoing all windows
     capture.release();
     destroyAllWindows();
 }
