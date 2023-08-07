@@ -261,24 +261,25 @@ int main(int argc, char **argv)
     std::cout << "Clusters identified: " << clusterIndices.size() << std::endl;
 
     int j = 0;
-    for (vector<PointIndices>::const_iterator it = clusterIndices.begin(); it != clusterIndices.end(); ++it)
+    vector<PointIndices>::const_iterator i;
+    for (i = clusterIndices.begin(); i != clusterIndices.end(); ++i)
     {
         PointCloud<PointXYZRGBA>::Ptr cloud_cluster(new PointCloud<PointXYZRGBA>);
-        for (vector<int>::const_iterator pit = it->indices.begin(); pit != it->indices.end(); ++pit)
+        for (vector<int>::const_iterator k = i->indices.begin(); k != i->indices.end(); ++k)
         {
-            cloud_cluster->points.push_back(cloud->points[*pit]); 
+            cloud_cluster->points.push_back(cloud->points[*k]); 
             if (j == 0) // FIRST BOX
             {
                 // Color the first box green
-                cloud->points[*pit].r = 0;
-                cloud->points[*pit].g = 255;
-                cloud->points[*pit].b = 0;
+                cloud->points[*k].r = 0;
+                cloud->points[*k].g = 255;
+                cloud->points[*k].b = 0;
             }
             else if (j > 0 && j <= 1) //
             {
-                cloud->points[*pit].r = 255;
-                cloud->points[*pit].g = 0;
-                cloud->points[*pit].b = 0;
+                cloud->points[*k].r = 255;
+                cloud->points[*k].g = 0;
+                cloud->points[*k].b = 0;
             }
         }
 
