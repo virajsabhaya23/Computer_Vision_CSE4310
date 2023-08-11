@@ -80,15 +80,66 @@ int main(int argc, char *argv[])
     // created displaying windows
     namedWindow("capturedFrame", WINDOW_AUTOSIZE);
 
-
     bool tracking = true;
 
     while(tracking)
     {
         Mat capturedFrame;
+        // hsv frame for color detection
+        Mat hsvFrame;
 
         // read frame from video source
         bool captureSuccess = capture.read(capturedFrame);
+
+        // converting to hsc frame if the caputured frame is valid
+        if (captureSuccess)
+        {
+            cvtColor(capturedFrame, hsvFrame, COLOR_BGR2HSV);
+
+            // Thresholding to read only green color from the frame
+            Mat greenMask;
+            inRange(hsvFrame, Scalar(40, 40, 40), Scalar(70, 255, 255), greenMask);
+
+            // Morphological operations to remove noise
+            Mat kernel = getStructuringElement(MORPH_RECT, Size(5, 5));
+            morphologyEx(greenMask, greenMask, MORPH_OPEN, kernel);
+
+            // finding contours in the mask
+            vector<vector<Point> > contours;
+            vector<Vec4i> hierarchy;
+            findContours(greenMask, contours, hierarchy, RETR_TREE, CHAIN_APPROX_SIMPLE);
+
+            // drawing contours on the captured frame
+            for (int i = 0; i < contours.size(); i++)
+            {
+                double area = contourArea(contours[i]);
+                if(area > 1200 && area < 20000)
+                    drawContours(capturedFrame, contours, i, GREEN_COLOR, 2, LINE_8, hierarchy, 0);
+            }
+
+            // finding the bounding box around the contours
+            vector<Rect> boundRect(contours.size());
+            for (int i = 0; i < contours.size(); i++)
+            {
+                boundRect[i] = boundingRect(contours[i]);
+            }
+
+            // drawing the bounding box on the captured frame
+            for (int i = 0; i < contours.size(); i++)
+            {   
+                double area = contourArea(contours[i]);
+                putText(capturedFrame, to_string(area), Point(boundRect[i].x, boundRect[i].y), FONT_HERSHEY_SIMPLEX, 0.5, Scalar(0, 0, 255), 1);
+                if(area > 1200 && area < 20000)
+                    rectangle(capturedFrame, boundRect[i].tl(), boundRect[i].br(), RED_COLOR, 2);
+            }
+
+            // finding the center of the bounding box
+            vector<Point> center(contours.size());
+            for (int i = 0; i < contours.size(); i++)
+            {
+                center[i] = Point(boundRect[i].x + boundRect[i].width / 2, boundRect[i].y + boundRect[i].height / 2);
+            }
+        }
 
         // updating GUI window
         if (captureSuccess)
@@ -102,7 +153,8 @@ int main(int argc, char *argv[])
             continue;
         }
 
-
+        // added because the viedo was playing too fast
+        char waitTime = waitKey(500 / captureFPS);
         if(((char)waitKey(1) == 'q'))
         {
             tracking = false;

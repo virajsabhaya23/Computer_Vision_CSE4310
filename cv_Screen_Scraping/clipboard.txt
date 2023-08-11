@@ -1,0 +1,52 @@
+            // // Thresholding to read only blue color from the frame
+            // Mat blueMask;
+            // inRange(hsvFrame, Scalar(110, 100, 100), Scalar(130, 255, 255), blueMask);
+            // // contours of blue gems
+            // vector<vector<Point> > blueGemsContours;
+            // findContours(blueMask, blueGemsContours, RETR_EXTERNAL, CHAIN_APPROX_SIMPLE);
+            // // drawing blue rectangle around the blue gems
+            // for (int i = 0; i < blueGemsContours.size(); i++)
+            // {
+            //     Rect blueGemRect = boundingRect(blueGemsContours[i]);
+            //     double area = contourArea(blueGemsContours[i]);
+            //     if (area > ) // adjust the threshold as needed
+            //     {
+            //         rectangle(capturedFrame, blueGemRect, BLUE_COLOR, 2);
+            //         // display the area of the blue gem
+            //         cout << "Area of blue gem: " << area << endl;
+            //     }
+            // }
+
+            // // Thresholding to read only yellow color from the frame
+            // Mat yellowMask;
+            // inRange(hsvFrame, Scalar(20, 100, 100), Scalar(30, 255, 255), yellowMask);
+            // // contours of yellow gems
+            // vector<vector<Point> > yellowGemsContours;
+            // findContours(yellowMask, yellowGemsContours, RETR_EXTERNAL, CHAIN_APPROX_SIMPLE);
+            // // drawing yellow rectangle around the yellow gems
+            // for (int i = 0; i < yellowGemsContours.size(); i++)
+            // {
+            //     Rect yellowGemRect = boundingRect(yellowGemsContours[i]);
+            //     double area = contourArea(yellowGemsContours[i]);
+            //     if (area > ) // adjust the threshold as needed
+            //     {
+            //         rectangle(capturedFrame, yellowGemRect, YELLOW_COLOR, 2);
+            //     }
+            // }
+
+            // // Thresholding to read only green color from the frame
+            // Mat greenMask;
+            // inRange(hsvFrame, Scalar(50, 100, 100), Scalar(70, 255, 255), greenMask);
+            // // contours of green gems
+            // vector<vector<Point> > greenGemsContours;
+            // findContours(greenMask, greenGemsContours, RETR_EXTERNAL, CHAIN_APPROX_SIMPLE);
+            // // drawing green rectangle around the green gems
+            // for (int i = 0; i < greenGemsContours.size(); i++)
+            // {
+            //     Rect greenGemRect = boundingRect(greenGemsContours[i]);
+            //     double area = contourArea(greenGemsContours[i]);
+            //     if (area > ) // adjust the threshold as needed
+            //     {
+            //         rectangle(capturedFrame, greenGemRect, GREEN_COLOR, 2);
+            //     }
+            // }
