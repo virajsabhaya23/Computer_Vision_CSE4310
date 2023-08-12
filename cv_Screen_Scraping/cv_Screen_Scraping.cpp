@@ -103,6 +103,7 @@ int main(int argc, char *argv[])
             // Morphological operations to remove noise
             Mat kernel = getStructuringElement(MORPH_RECT, Size(5, 5));
             morphologyEx(greenMask, greenMask, MORPH_OPEN, kernel);
+            morphologyEx(greenMask, greenMask, MORPH_CLOSE, kernel);
 
             // finding contours in the mask
             vector<vector<Point> > contours;
@@ -114,7 +115,9 @@ int main(int argc, char *argv[])
             {
                 double area = contourArea(contours[i]);
                 if(area > 1200 && area < 20000)
+                {
                     drawContours(capturedFrame, contours, i, GREEN_COLOR, 2, LINE_8, hierarchy, 0);
+                }
             }
 
             // finding the bounding box around the contours
@@ -128,9 +131,10 @@ int main(int argc, char *argv[])
             for (int i = 0; i < contours.size(); i++)
             {   
                 double area = contourArea(contours[i]);
-                putText(capturedFrame, to_string(area), Point(boundRect[i].x, boundRect[i].y), FONT_HERSHEY_SIMPLEX, 0.5, Scalar(0, 0, 255), 1);
                 if(area > 1200 && area < 20000)
-                    rectangle(capturedFrame, boundRect[i].tl(), boundRect[i].br(), RED_COLOR, 2);
+                {
+                    rectangle(capturedFrame, boundRect[i].tl(), boundRect[i].br(), GREEN_COLOR, 2);
+                }
             }
 
             // finding the center of the bounding box
